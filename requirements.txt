@@ -1,2 +1,3 @@
 setuptools_scm
 cffi
+semver
