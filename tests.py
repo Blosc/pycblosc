@@ -1,6 +1,7 @@
 import array
-import pycblosc as cblosc
+import copy
 import unittest
+import pycblosc as cblosc
 
 
 class TestUM(unittest.TestCase):
@@ -9,12 +10,14 @@ class TestUM(unittest.TestCase):
     N = 1000 * 1000
     itemsize = 4
     nbytes = N * itemsize
-    buf = bytearray(N * itemsize)  # a buffer filled with zeros
+    arr = array.array('f', range(N))  # the array to compress
+    carr = bytearray(N * itemsize)    # a buffer filled with zeros
+    farr = array.array('f', carr)
+
 
     def setUp(self):
-        self.arr1 = array.array('f', range(self.N))  # the array to compress
-        self.arr2 = array.array('f', self.buf)  # the final destination
-        self.carr = array.array('f', self.buf)  # compressed buffer
+        self.arr1 = copy.copy(self.arr)   # the array to compress
+        self.arr2 = copy.copy(self.farr)  # the final destination
 
 
     def test_compress_decompress(self):
@@ -37,6 +40,7 @@ class TestUM(unittest.TestCase):
         cblosc.set_nthreads(2)
         n = cblosc.get_nthreads()
         self.assertEqual(n, 2)
+        cblosc.set_nthreads(1)
 
 
     def test_set_compressor(self):
