@@ -99,5 +99,6 @@ class TestUM(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    print("Running tests for Blosc version:", cblosc.get_version_string())
+    print("Running tests for PyCBlosc {} (C-Blosc {})".format(
+        cblosc.__version__, cblosc.get_version_string()))
     unittest.main()
