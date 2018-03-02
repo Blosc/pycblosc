@@ -1,11 +1,13 @@
 from subprocess import call
 from setuptools import setup
 from setuptools_scm import get_version as scm_get_version
-from distutils.command.install_data import install_data
+from distutils.command.build import build
 
 
-class blosc_install(install_data):
+class blosc_install(build):
     def run(self):
+        # Call parent
+        build.run(self)
         # Get a copy of the Blosc shared library via conan
         blosc_version = "1.14.0"
         with open("conanfile.txt", "w") as conanfile:
@@ -38,7 +40,7 @@ setup(
     author_email='francesc@blosc.org',
     license='BSD',
     packages=['pycblosc'],
-    cmdclass = {"install_data": blosc_install},
+    cmdclass = {"build": blosc_install},
     package_data={'pycblosc': ['libblosc.*']},
     zip_safe=False,
 )
