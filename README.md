@@ -1,4 +1,4 @@
-# pycblosc
+# PyCBlosc
 
 A simple Python/CFFI interface for the C-Blosc library.
 
