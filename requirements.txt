@@ -1,3 +1,4 @@
 setuptools
 setuptools_scm
 cffi
+conan
