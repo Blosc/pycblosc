@@ -36,22 +36,22 @@ In [8]: np.testing.assert_array_equal(a, c)
 
 ```
 
+## Installation
+
+```
+$ python setup.py install
+```
+
 ## Testing
 
 ```
 $ py.test tests
 ```
 
-or, for testing with different python interpreters:
+or, for testing with different Python (2 and 3) interpreters:
 
 ```
 $ make test
-```
-
-## Installation
-
-```
-$ python setup.py install
 ```
 
 
