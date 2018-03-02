@@ -79,10 +79,10 @@ def init():
     """
     Initialize the Blosc library environment.
 
-    You must call this previous to any other Blosc call, unless you want
-    Blosc to be used simultaneously in a multi-threaded environment, in
-    which case you should *exclusively* use the
-    blosc_compress_ctx()/blosc_decompress_ctx() pair (see below).
+    You should call this previous to any other Blosc call.
+    However, in many cases this is not necessary because many
+    Blosc calls take care of this initialization in case it has
+    not been done yet.
 
     Returns:
         None
@@ -129,59 +129,58 @@ def compress(clevel, doshuffle, typesize, nbytes, src, dest, destsize):
             Can be any Python object that supports the buffer protocol.
             The `dest` buffer must have at least the size of `destsize`.  Blosc
             guarantees that if you set `destsize` to, at least,
-            (`nbytes` + BLOSC_MAX_OVERHEAD), the compression will always succeed.
+            (`nbytes` + MAX_OVERHEAD), the compression will always succeed.
             The `src` buffer and the `dest` buffer can not overlap.
         destsize (int): The size of `dest` buffer in bytes.
 
     Returns:
         int: The size of the compressed block.
+        If `src` buffer cannot be compressed into `destsize`, the return
+        value is zero and you should discard the contents of the `dest`
+        buffer.
 
-            If `src` buffer cannot be compressed into `destsize`, the return
-            value is zero and you should discard the contents of the `dest`
-            buffer.
-
-            A negative return value means that an internal error happened.  This
-            should never happen.  If you see this, please report it back
-            together with the buffer data causing this and compression settings.
+        A negative return value means that an internal error happened.  This
+        should never happen.  If you see this, please report it back
+        together with the buffer data causing this and compression settings.
 
     Environment variables:
         `blosc_compress()` honors different environment variables to control
         internal parameters without the need of doing that programatically.
         Here are the ones supported:
 
-        * BLOSC_CLEVEL=(INTEGER): This will overwrite the `clevel` parameter
-            before the compression process starts.
+            * BLOSC_CLEVEL=(INTEGER): This will overwrite the `clevel` parameter
+                before the compression process starts.
 
-        * BLOSC_SHUFFLE=[NOSHUFFLE | SHUFFLE | BITSHUFFLE]: This will
-            overwrite the `doshuffle` parameter before the compression process
-            starts.
+            * BLOSC_SHUFFLE=[NOSHUFFLE | SHUFFLE | BITSHUFFLE]: This will
+                overwrite the `doshuffle` parameter before the compression process
+                starts.
 
-        * BLOSC_TYPESIZE=(INTEGER): This will overwrite the `typesize`
-            parameter before the compression process starts.
+            * BLOSC_TYPESIZE=(INTEGER): This will overwrite the `typesize`
+                parameter before the compression process starts.
 
-        * BLOSC_COMPRESSOR=[BLOSCLZ | LZ4 | LZ4HC | SNAPPY | ZLIB]: This will
-            call blosc_set_compressor(BLOSC_COMPRESSOR) before the compression
-            process starts.
+            * BLOSC_COMPRESSOR=[BLOSCLZ | LZ4 | LZ4HC | SNAPPY | ZLIB]: This will
+                call blosc_set_compressor(BLOSC_COMPRESSOR) before the compression
+                process starts.
 
-        * BLOSC_NTHREADS=(INTEGER): This will call
-            blosc_set_nthreads(BLOSC_NTHREADS) before the compression process
-            starts.
+            * BLOSC_NTHREADS=(INTEGER): This will call
+                blosc_set_nthreads(BLOSC_NTHREADS) before the compression process
+                starts.
 
-        * BLOSC_BLOCKSIZE=(INTEGER): This will call
-            blosc_set_blocksize(BLOSC_BLOCKSIZE) before the compression process
-            starts.  *NOTE:* The blocksize is a critical parameter with
-            important restrictions in the allowed values, so use this with care.
+            * BLOSC_BLOCKSIZE=(INTEGER): This will call
+                blosc_set_blocksize(BLOSC_BLOCKSIZE) before the compression process
+                starts.  *NOTE:* The blocksize is a critical parameter with
+                important restrictions in the allowed values, so use this with care.
 
-        * BLOSC_NOLOCK=(ANY VALUE): This will call blosc_compress_ctx() under
-            the hood, with the `compressor`, `blocksize` and
-            `numinternalthreads` parameters set to the same as the last calls to
-            blosc_set_compressor(), blosc_set_blocksize() and
-            blosc_set_nthreads().  BLOSC_CLEVEL, BLOSC_SHUFFLE, BLOSC_TYPESIZE
-            environment vars will also be honored.
+            * BLOSC_NOLOCK=(ANY VALUE): This will call blosc_compress_ctx() under
+                the hood, with the `compressor`, `blocksize` and
+                `numinternalthreads` parameters set to the same as the last calls to
+                blosc_set_compressor(), blosc_set_blocksize() and
+                blosc_set_nthreads().  BLOSC_CLEVEL, BLOSC_SHUFFLE, BLOSC_TYPESIZE
+                environment vars will also be honored.
 
-        * BLOSC_SPLITMODE=[ FORWARD_COMPAT | AUTO | ALWAYS | NEVER ]:
-            This will call blosc_set_splitmode() with the different supported values.
-            See blosc_set_splitmode() docstrings for more info on each mode.
+            * BLOSC_SPLITMODE=[ FORWARD_COMPAT | AUTO | ALWAYS | NEVER ]:
+                This will call set_splitmode() with the different supported values.
+                See set_splitmode() docstrings for more info on each mode.
 
     """
     src = ffi.from_buffer(src)
@@ -207,22 +206,22 @@ def decompress(src, dest, destsize):
 
     Returns:
         int: The size of the decompressed block
-            If an error occurs, e.g. the compressed data is corrupted or the
-            output buffer is not large enough, then 0 (zero) or a negative value
-            will be returned instead.
+        If an error occurs, e.g. the compressed data is corrupted or the
+        output buffer is not large enough, then 0 (zero) or a negative value
+        will be returned instead.
 
     Environment variables:
         `blosc_decompress()` honors different environment variables to control
         internal parameters without the need of doing that programatically.
         Here are the ones supported:
 
-        * BLOSC_NTHREADS=(INTEGER): This will call
-            `blosc_set_nthreads(BLOSC_NTHREADS)` before the proper decompression
-            process starts.
+            * BLOSC_NTHREADS=(INTEGER): This will call
+                `blosc_set_nthreads(BLOSC_NTHREADS)` before the proper decompression
+                process starts.
 
-        * BLOSC_NOLOCK=(ANY VALUE): This will call `blosc_decompress_ctx()`
-            under the hood, with the `numinternalthreads` parameter set to the
-            same value as the last call to `blosc_set_nthreads()`.
+            * BLOSC_NOLOCK=(ANY VALUE): This will call `blosc_decompress_ctx()`
+                under the hood, with the `numinternalthreads` parameter set to the
+                same value as the last call to `blosc_set_nthreads()`.
 
     """
     src = ffi.from_buffer(src)
@@ -247,7 +246,7 @@ def getitem(src, start, nitems, dest):
 
     Returns:
         int: The number of bytes copied to `dest` or a negative value if
-            some error happens.
+        some error happens.
     """
     src = ffi.from_buffer(src)
     dest = ffi.from_buffer(dest)
@@ -306,8 +305,8 @@ def set_compressor(compname):
 
     Returns:
         int: In case the compressor is not recognized, or there is not support
-            for it in this build, it returns a -1.  Else it returns the code for
-            the compressor (>=0).
+        for it in this build, it returns a -1.  Else it returns the code for
+        the compressor (>=0).
     """
     if isinstance(compname, str):
         compname = compname.encode()
@@ -324,8 +323,8 @@ def compcode_to_compname(compcode):
 
     Returns:
         str: the compressor name associated with the compressor code.
-            If the compressor name is not recognized, or there is not support
-            for it in this build, `None` is returned instead.
+        If the compressor name is not recognized, or there is not support
+        for it in this build, `None` is returned instead.
     """
     compname = ffi.new("char **")
     code = C.blosc_compcode_to_compname(compcode, compname)
@@ -347,8 +346,8 @@ def compname_to_compcode(compname):
 
     Returns:
         int: The code of the compressor.  If the compressor name
-            is not recognized, or there is not support for it in this build,
-            a -1 is returned instead.
+        is not recognized, or there is not support for it in this build,
+        a -1 is returned instead.
     """
     if isinstance(compname, str):
         compname = compname.encode()
@@ -365,8 +364,8 @@ def list_compressors():
 
     Returns:
         str:  Concatenation of "blosclz", "lz4", "lz4hc", "snappy", "zlib"
-            or "zstd "separated by commas, depending on which ones are present
-            in the build.
+        or "zstd "separated by commas, depending on which ones are present
+        in the build.
     """
     return ffi.string(C.blosc_list_compressors())
 
@@ -393,9 +392,9 @@ def get_complib_info(compname):
 
     Returns:
         tuple: A tuple (`complib`, `version`) with compression library name
-            and version in string format.
+        and version in string format.
 
-            If the compressor is not supported, `None` is returned instead.
+        If the compressor is not supported, `None` is returned instead.
 
     Note:
         This Python implementation may leak the space for storing the `complib`
@@ -417,7 +416,7 @@ def free_resources():
 
     Returns:
         int: In case of problems releasing the resources, it returns
-            a negative number, else it returns 0.
+        a negative number, else it returns 0.
     """
     return C.blosc_free_resources()
 
@@ -430,15 +429,15 @@ def cbuffer_sizes(cbuffer):
         cbuffer (object): The compressed buffer.
 
     Returns:
-        tuple: (`nbytes`, `cbytes`, `blocksize`). `nbytes` is the number of
-            uncompressed bytes, `cbytes` is the number of compressed bytes,
-            whereas `blocksize` is used internally for doing the compression by blocks.
+        tuple: (`nbytes`, `cbytes`, `blocksize`) . `nbytes` is the number of
+        uncompressed bytes, `cbytes` is the number of compressed bytes,
+        whereas `blocksize` is used internally for doing the compression by blocks.
 
-            If the format is not supported by the library, all these values will be
-            zeros.
+        If the format is not supported by the library, all these values will be
+        zeros.
 
     Note:
-        You only need to pass the first BLOSC_MIN_HEADER_LENGTH bytes of a
+        You only need to pass the first MIN_HEADER_LENGTH bytes of a
         compressed buffer for this call to work.
     """
     nbytes = ffi.new("size_t *")
@@ -458,18 +457,19 @@ def cbuffer_metainfo(cbuffer):
 
     Returns:
         tuple: (`typesize`, `flags`). `typesize` is the size of the
-            type, whereas `flags` is a list of booleans.
+        type, whereas `flags` is a list of booleans.
 
-            The list of booleans in `flags` is currently made of 3 elements:
-            * 0: whether the shuffle filter has been applied or not
-            * 1: whether the internal buffer is a pure memcpy or not
-            * 2: whether the bit shuffle filter has been applied or not
+        The list of booleans in `flags` is currently made of 3 elements:
 
-            If the format is not supported by the library, all output arguments will be
-            filled with zeros (or False values for the `flags` list).
+            0. whether the shuffle filter has been applied or not
+            1. whether the internal buffer is a pure memcpy or not
+            2. whether the bit shuffle filter has been applied or not
+
+        If the format is not supported by the library, all output arguments will be
+        filled with zeros (or False values for the `flags` list).
 
     Note:
-        You only need to pass the first BLOSC_MIN_HEADER_LENGTH bytes of a
+        You only need to pass the first MIN_HEADER_LENGTH bytes of a
         compressed buffer for this call to work.
     """
     typesize = ffi.new("size_t *")
@@ -488,8 +488,8 @@ def cbuffer_versions(cbuffer):
 
     Returns:
         tuple: (`version`, `compversion`). `version` is the  C-Blosc format
-            version and `compversion` is the format for the internal compressor
-            used.
+        version and `compversion` is the format for the internal compressor
+        used.
     """
     version = ffi.new("int *")
     versionlz = ffi.new("int *")
@@ -518,8 +518,8 @@ def get_blocksize():
 
     Returns:
         int: The internal blocksize to used during compression.
-            0 means that an automatic blocksize is computed internally
-            (the default).
+        0 means that an automatic blocksize is computed internally
+        (the default).
     """
     return C.blosc_get_blocksize()
 
@@ -554,10 +554,11 @@ def set_splitmode(splitmode):
 
     Args:
         splitmode (int): The split mode.  Can be one of these:
-            *  BLOSC_FORWARD_COMPAT_SPLIT
-            *  BLOSC_AUTO_SPLIT
-            *  BLOSC_NEVER_SPLIT
-            *  BLOSC_ALWAYS_SPLIT
+
+            *  FORWARD_COMPAT_SPLIT
+            *  AUTO_SPLIT
+            *  NEVER_SPLIT
+            *  ALWAYS_SPLIT
 
     Returns:
         None
