@@ -14,8 +14,8 @@ try:
     __version__ = get_distribution(__name__).version
 except DistributionNotFound:
     # package is not installed
-    from setuptools_scm import get_version
-    __version__ = get_version()
+    from setuptools_scm import get_version as scm_get_version
+    __version__ = scm_get_version()
 
 
 from cffi import FFI
@@ -294,7 +294,7 @@ def set_nthreads(nthreads):
 
 def get_compressor():
     """
-    Get the current compressor that is used for compression.
+    Get the current compressor that is being used for compression.
 
     Returns:
         str: The name of the current compressor.
@@ -574,3 +574,5 @@ def set_splitmode(splitmode):
 
     """
     return C.blosc_set_splitmode(splitmode)
+
+

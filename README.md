@@ -39,7 +39,13 @@ In [8]: np.testing.assert_array_equal(a, c)
 ## Testing
 
 ```
-$ python tests.py
+$ py.test tests
+```
+
+or
+
+```
+$ make test
 ```
 
 ## Installation
