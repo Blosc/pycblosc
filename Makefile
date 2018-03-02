@@ -3,6 +3,6 @@ init:
 
 test:
 	pip install -r requirements-dev.txt
-	py.test tests
+	tox
 
 .PHONY: init test

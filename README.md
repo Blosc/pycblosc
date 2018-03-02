@@ -42,7 +42,7 @@ In [8]: np.testing.assert_array_equal(a, c)
 $ py.test tests
 ```
 
-or
+or, for testing with different python interpreters:
 
 ```
 $ make test
