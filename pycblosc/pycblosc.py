@@ -1,6 +1,4 @@
 """
-Simple CFFI wrapper for the C-Blosc library.
-
 This is a low-level Python wrapper for the public API of the C-Blosc library.
 Most of the functions have the same parameters and return values than their
 C-Blosc counterparts.  However, there are some exceptions in order to adapt
@@ -8,14 +6,6 @@ to usual Python idioms.
 
 For a detailed info, see the docstrings on the different functions.
 """
-
-from pkg_resources import get_distribution, DistributionNotFound
-try:
-    __version__ = get_distribution(__name__).version
-except DistributionNotFound:
-    # package is not installed
-    from setuptools_scm import get_version as scm_get_version
-    __version__ = scm_get_version()
 
 
 from cffi import FFI
