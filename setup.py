@@ -1,13 +1,11 @@
 from subprocess import call
 from setuptools import setup
 from setuptools_scm import get_version as scm_get_version
-from distutils.command.build import build
+from distutils.command.install import install
 
 
-class blosc_install(build):
+class blosc_install(install):
     def run(self):
-        # Call parent
-        build.run(self)
         # Get a copy of the Blosc shared library via conan
         blosc_version = "1.14.0"
         with open("conanfile.txt", "w") as conanfile:
@@ -30,6 +28,8 @@ class blosc_install(build):
                 print("conan CLI returned", retcode)
         except OSError as e:
             print("conan CLI Execution failed:", e)
+        # Call parent
+        install.run(self)
 
 setup(
     name='pycblosc',
@@ -40,7 +40,7 @@ setup(
     author_email='francesc@blosc.org',
     license='BSD',
     packages=['pycblosc'],
-    cmdclass = {"build": blosc_install},
+    cmdclass = {"install": blosc_install},
     package_data={'pycblosc': ['libblosc.*']},
     zip_safe=False,
 )
