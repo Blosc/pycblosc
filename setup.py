@@ -1,5 +1,31 @@
+from subprocess import call
 from setuptools import setup
 from setuptools_scm import get_version as scm_get_version
+
+
+# Get a copy of the Blosc shared library via conan
+blosc_version = "1.14.0"
+with open("conanfile.txt", "w") as conanfile:
+    conanfile.write("""
+[requires]
+ c-blosc/v{}@francescalted/stable
+[options]
+  c-blosc:shared=True
+[imports]
+  bin, *.dll -> ./pycblosc
+  lib, *.dylib* -> ./pycblosc
+  lib, *.so* -> ./pycblosc
+""".format(blosc_version))
+
+# Copy the shared library for later install
+try:
+    retcode = call("conan install conanfile.txt -r conan-center", shell=True)
+    if retcode < 0:
+        print("conan CLI was terminated by signal", -retcode)
+    else:
+        print("conan CLI returned", retcode)
+except OSError as e:
+    print("conan CLI Execution failed:", e)
 
 setup(
     name='pycblosc',
@@ -10,4 +36,6 @@ setup(
     author_email='francesc@blosc.org',
     license='BSD',
     packages=['pycblosc'],
-    zip_safe=False)
+    package_data={'pycblosc': ['libblosc.*']},
+    zip_safe=False,
+)
