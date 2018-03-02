@@ -11,8 +11,8 @@ class TestUM(unittest.TestCase):
     itemsize = 4
     nbytes = N * itemsize
     arr = array.array('f', range(N))  # the array to compress
+    farr = array.array('f', [0] * N)  # an array filled with zeros
     carr = bytearray(N * itemsize)    # a buffer filled with zeros
-    farr = array.array('f', carr)
 
 
     def setUp(self):
@@ -24,7 +24,7 @@ class TestUM(unittest.TestCase):
         cblosc.compress(self.clevel, self.shuffle, self.itemsize, self.nbytes,
                         self.arr1, self.carr, self.nbytes)
         cblosc.decompress(self.carr, self.arr2, self.nbytes)
-        self.assertEqual(self.arr1.tobytes(), self.arr2.tobytes())
+        self.assertEqual(self.arr1, self.arr2)
 
 
     def test_compress_getitem(self):
@@ -33,7 +33,7 @@ class TestUM(unittest.TestCase):
         cblosc.getitem(self.carr, 1000, 10000, self.arr2)
         arr1 = self.arr1[1000:11000]
         arr2 = self.arr2[:10000]
-        self.assertEqual(arr1.tobytes(), arr2.tobytes())
+        self.assertEqual(arr1, arr2)
 
 
     def test_threads(self):

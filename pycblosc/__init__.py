@@ -5,13 +5,11 @@ Simple CFFI wrapper for the C-Blosc library.
 from pkg_resources import get_distribution, DistributionNotFound
 from distutils.version import LooseVersion
 
-from .pycblosc import get_version_string
-
-
-min_blosc_version = LooseVersion("1.14.0")
+from .pycblosc import *
 
 
 # Check that we have a reasonable recent C-Blosc library installed
+min_blosc_version = LooseVersion("1.14.0")
 blosc_version = LooseVersion(get_version_string())
 if blosc_version < min_blosc_version:
     raise ValueError("Underlying C-Blosc should be %s or higher" % min_blosc_version)
