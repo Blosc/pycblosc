@@ -7,8 +7,8 @@ to usual Python idioms.
 For a detailed info, see the docstrings on the different functions.
 """
 
-
 from cffi import FFI
+
 
 ffi = FFI()
 ffi.cdef(

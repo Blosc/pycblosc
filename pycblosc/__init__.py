@@ -2,11 +2,18 @@
 Simple CFFI wrapper for the C-Blosc library.
 """
 
+import os
+import inspect
+from sys import platform as _platform
 from pkg_resources import get_distribution, DistributionNotFound
 from distutils.version import LooseVersion
 
-from .pycblosc import *
+# Linux needs to add the path for the module in LD_LIBRARY_PATH
+if _platform == "linux" or _platform == "linux2":
+    os.environ['LD_LIBRARY_PATH'] = "{}:{}".format(os.environ['LD_LIBRARY_PATH'],
+                                                   os.path.dirname(os.path.abspath(inspect.stack()[0][1])))
 
+from .pycblosc import *
 
 # Check that we have a reasonable recent C-Blosc library installed
 min_blosc_version = LooseVersion("1.14.0")
